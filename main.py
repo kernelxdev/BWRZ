@@ -5,11 +5,11 @@ import random
 import time
 from cryptography.fernet import Fernet
 import base64
-from scapy.all import IP, TCP, send
+#from scapy.all import IP, TCP, send
 
 numlist = ['1','2','3','4','5','6','7','8','9','0']
-stat1 = False
-stat2 = False
+usingThreading = True
+hackerMode = False
 insettings = False
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -78,9 +78,16 @@ def start_attack(target_ip, target_port, time_limit, threads, attack_type):
     for thread in thread_list:
         thread.join()
 
-os.system("cls" if os.name == "nt" else "clear")
+def clear_terminal():
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
 
-print("""
+def print_title():
+    if(os.name == "nt"):
+        clear_terminal()
+        print("""
 \033[32m
  ______     __     __     ______     ______    
 /\  == \   /\ \  _ \ \   /\  == \   /\___  \   
@@ -89,9 +96,25 @@ print("""
   \/_____/   \/_/   \/_/   \/_/ /_/   \/_____/                                                                                                                                    
 \033[0m
 """)
+        print_features()
+    else:
+        clear_terminal()
+        print("""
+\033[32m
+ ______     __     __     ______     ______    
+/\  == \   /\ \  _ \ \   /\  == \   /\___  \   
+\ \  __<   \ \ \/ ".\ \  \ \  __<   \/_/  /__  
+ \ \_____\  \ \__/".~\_\  \ \_\ \_\   /\_____\ 
+  \/_____/   \/_/   \/_/   \/_/ /_/   \/_____/                                                                                                                                    
+\033[0m
+""")
+        print_features()
 
-print("\033[31mWARNING: RECOMMENDED TO RUN IN CMD, NOT POWERSHELL\033[0m")
-print("""
+def print_features():
+    if os.name == "nt":
+        print("\033[31mWARNING: RECOMMENDED TO RUN IN CMD, NOT POWERSHELL\033[0m")
+
+    print("""
 ▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
 ╔═════════════════┃
 ║
@@ -112,6 +135,22 @@ print("""
 ╚═ 8. Exit
 """)
 print("░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒░\n")
+        
+def print_settings():
+    print(f"""
+▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
+╔═════════════════┃
+║
+╠═ 1. Use threaded port scanning (recommended)      {usingThreading}
+║
+╠═ 2. Green text                                    {hackerMode}
+║
+╚═ 3. Exit settings
+""")
+
+clear_terminal()
+
+print_title()
 
 while True:
     try:
@@ -123,43 +162,34 @@ while True:
         
         elif option == 1 and insettings == False:
             link = input("\nEnter link: ")
-            os.system(f".\helpers\mp3.exe {link}")
+            if os.name == "nt":
+                os.system(f".\helpers\mp3.exe {link}")
+            else:
+                os.system(f"./helpers/mp3.exe {link}")
             break
         elif option == 1 and insettings == True:
-            if stat1 == False:
-                stat1 = True
-                os.system("cls")
-                print(f"""
-▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
-╔═════════════════┃
-║
-╠═ 1. Use threaded port scanning (recommended)      {stat1}
-║
-╠═ 2. Green text                                    {stat2}
-║
-╚═ 3. Exit settings
-""")
+            if usingThreading == False:
+                usingThreading = True
+                clear_terminal()
+                print_settings()
             else:
-                stat1 = False
-                os.system("cls")
-                print(f"""
-▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
-╔═════════════════┃
-║
-╠═ 1. Use threaded port scanning (recommended)      {stat1}
-║
-╠═ 2. Green text                                    {stat2}
-║
-╚═ 3. Exit settings
-""")
-        elif option == 2:
+                usingThreading = False
+                clear_terminal()
+                print_settings()
+        elif option == 2 and insettings == False:
             target_ip = input("\nEnter IP address: ")
             sfp = input("\nDo you want to scan for open ports? (y/n): ").lower()
             if sfp == "y":
-                if stat1 == True:
-                    os.system(f"\npython .\\helpers\\thpscan.py {target_ip}")
+                if usingThreading == True:
+                    if os.name == "nt":
+                        os.system(f"\npython .\\helpers\\thpscan.py {target_ip}")
+                    else:
+                        os.system(f"\npython ./helpers/thpscan.py {target_ip}")
                 else:
-                    os.system(f"python .\\helpers\\pscan.py {target_ip}")
+                    if os.name == "nt":
+                        os.system(f"python .\\helpers\\pscan.py {target_ip}")
+                    else:
+                        os.system(f"\npython ./helpers/pscan.py {target_ip}")
             target_port = int(input("\nEnter port: "))
             if target_port < 1 or target_port > 65535:
                 print("Invalid port!")
@@ -177,7 +207,15 @@ while True:
             start_attack(target_ip, target_port, time_limit, threads, attack_type)
             print("Attack completed.")
             break
-
+        elif option == 2 and insettings == True:
+            if hackerMode == False:
+                hackerMode = True
+                clear_terminal()
+                print_settings()
+            elif hackerMode == True:
+                hackerMode = False
+                clear_terminal()
+                print_settings()
         elif option == 3 and insettings == False:
             filename = input("Enter the file to encrypt: ")
             with open(filename, "r") as f:
@@ -196,39 +234,8 @@ while True:
             break
         elif option == 3 and insettings == True:
             insettings = False
-            os.system("cls")
-            print("""
-\033[32m
- ______     __     __     ______     ______    
-/\  == \   /\ \  _ \ \   /\  == \   /\___  \   
-\ \  __<   \ \ \/ ".\ \  \ \  __<   \/_/  /__  
- \ \_____\  \ \__/".~\_\  \ \_\ \_\   /\_____\ 
-  \/_____/   \/_/   \/_/   \/_/ /_/   \/_____/                                                                                                                                    
-\033[0m
-""")
-
-            print("\033[31mWARNING: RECOMMENDED TO RUN IN CMD, NOT POWERSHELL\033[0m")
-            print("""
-▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
-╔═════════════════┃
-║
-╠═ 1. Extract MP3 from YouTube link
-║
-╠═ 2. DoS Attack on IP
-║
-╠═ 3. Encrypt a text file
-║
-╠═ 4. Decrypt the encrypted file
-║
-╠═ 5. Compress a file (HUFFMAN - NOT IMPLEMENTED YET)
-║
-╠═ 6. Decompress a file (HUFFMAN - NOT IMPLEMENTED YET)
-║
-╠═ 7. Settings
-║     
-╚═ 8. Exit
-""")
-            print("░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒░\n")
+            clear_terminal()
+            print_title()
         
         elif option == 4:
             filename = input("Enter the file to decrypt: ")
@@ -250,19 +257,9 @@ while True:
             break
         
         elif option == 7:
-            os.system("cls")
+            clear_terminal()
             insettings = True
-            print(f"""
-▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
-╔═════════════════┃
-║
-╠═ 1. Use threaded port scanning (recommended)      {stat1}
-║
-╠═ 2. Green text                                    {stat2}
-║
-╚═ 3. Exit settings
-""")
-            
-
+            print_settings()
     except ValueError:
         print("\nInvalid input.\n")
+
