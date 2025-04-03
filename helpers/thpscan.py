@@ -1,7 +1,6 @@
 import socket
 import threading
 import sys
-
 def scan_port(ip, port):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
