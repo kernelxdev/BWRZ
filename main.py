@@ -9,11 +9,15 @@ if os.name =="nt":
     from scapy.all import IP, TCP, send
 else:
     pass
+import json
 
 numlist = ['1','2','3','4','5','6','7','8','9','0']
-usingThreading = True
+usingThreading = False
 hackerMode = False
 insettings = False
+
+saveable_options = [hackerMode, usingThreading]
+settings_file = "options.json"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -117,6 +121,38 @@ def print_settings():
 ║
 ╚═ 3. Exit settings
 """)
+    
+def save_options(data, file_path=settings_file):
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        pass
+
+def load_options(index, file_path=settings_file):
+    if not os.path.exists(file_path):
+        return None
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                if 0 <= index < len(data):
+                    value = data[index]
+                    if isinstance(value, bool):
+                        return value
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return False
+    except json.JSONDecodeError as e:
+        return None
+    except IOError as e:
+        return None
+    except Exception as e:
+        return None
+        
 
 def encrypt_text(text, key):
     key = base64.urlsafe_b64encode(key.ljust(32, 'X').encode())
@@ -191,6 +227,9 @@ print_title()
 
 while True:
     try:
+        usingThreading = load_options(0, settings_file)
+        hackerMode = load_options(1, settings_file)
+
         option = int(hinput("Select an option: "))
         if option == 8:
             hprint("\nBye")
@@ -272,6 +311,7 @@ while True:
             break
         elif option == 3 and insettings == True:
             insettings = False
+            save_options(saveable_options, settings_file)
             clear_terminal()
             print_title()
         
